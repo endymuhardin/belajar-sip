@@ -90,9 +90,11 @@ public class SipReceiver {
         @Override
         public void processRequest(RequestEvent re) {
             try {
-                System.out.println("Terima request ");
+                System.out.print("Terima request ");
                 Request r = re.getRequest();
+                System.out.println(r.getMethod());
                 System.out.println(r);
+                
                 ServerTransaction serverTransaction 
                         = sipProvider.getNewServerTransaction(r);
                 Response ok = messageFactory.createResponse(200, r);
