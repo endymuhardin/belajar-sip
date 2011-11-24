@@ -9,18 +9,23 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sip.DialogTerminatedEvent;
 import javax.sip.IOExceptionEvent;
+import javax.sip.InvalidArgumentException;
 import javax.sip.ListeningPoint;
 import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
 import javax.sip.ServerTransaction;
+import javax.sip.SipException;
 import javax.sip.SipFactory;
 import javax.sip.SipListener;
 import javax.sip.SipProvider;
 import javax.sip.SipStack;
 import javax.sip.TimeoutEvent;
 import javax.sip.TransactionTerminatedEvent;
+import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
+import javax.sip.header.Header;
 import javax.sip.header.HeaderFactory;
+import javax.sip.header.ToHeader;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
@@ -95,25 +100,51 @@ public class SipReceiver {
                 System.out.println(r.getMethod());
                 System.out.println(r);
                 
-                Response resp = null;
-                
-                if(Request.REGISTER.equals(r.getMethod())) {
-                    resp = messageFactory.createResponse(200, r);
-                } else if(Request.INVITE.equals(r.getMethod())){
-                    resp = messageFactory.createResponse(180, r);
-                }
-                
                 ServerTransaction serverTransaction 
                         = sipProvider.getNewServerTransaction(r);
                 
-                System.out.println("Response : ");
-                System.out.println(resp);
-                System.out.println("Mengirim response");
-                serverTransaction.sendResponse(resp);
-                System.out.println("Response terkirim");
+                if(Request.REGISTER.equals(r.getMethod())) {
+                    Response resp = messageFactory.createResponse(200, r);
+                    kirimResponse(resp, serverTransaction);
+                } else if(Request.INVITE.equals(r.getMethod())){
+                    Response ringingResponse = messageFactory.createResponse(180, r);
+                    kirimResponse(ringingResponse, serverTransaction);
+                    
+                    Response diangkat = handleIncomingCall(serverTransaction);
+                    kirimResponse(diangkat, serverTransaction);
+                }
+                
             } catch (Exception ex) {
                 Logger.getLogger(SipReceiver.class.getName()).log(Level.SEVERE, null, ex);
             } 
+        }
+
+        private void kirimResponse(Response resp, ServerTransaction serverTransaction) throws SipException, InvalidArgumentException {
+            System.out.println("Response : ");
+            System.out.println(resp);
+            System.out.println("Mengirim response");
+            serverTransaction.sendResponse(resp);
+            System.out.println("Response terkirim");
+        }
+        
+        private Response handleIncomingCall(ServerTransaction serverTransaction) 
+                throws Exception{
+            Request r = serverTransaction.getRequest();
+            Response diangkat = messageFactory.createResponse(200, r);
+            
+            Address addrPenerima = addressFactory
+                    .createAddress("sip:"+ipLocal+":"+portLocal);
+            
+            diangkat.addHeader(headerFactory.createContactHeader(addrPenerima));
+            
+            // harus nge-set tag supaya bisa start dialog
+            ToHeader toHeader = (ToHeader) diangkat.getHeader(ToHeader.NAME);
+            toHeader.setTag("123456");
+            
+            // delay dulu 5 detik, pura2nya klik button
+            Thread.sleep(5 * 1000);
+            
+            return diangkat;
         }
 
         @Override
