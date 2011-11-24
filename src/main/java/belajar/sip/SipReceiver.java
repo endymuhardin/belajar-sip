@@ -5,11 +5,14 @@
 package belajar.sip;
 
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.sip.DialogTerminatedEvent;
 import javax.sip.IOExceptionEvent;
 import javax.sip.ListeningPoint;
 import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
+import javax.sip.ServerTransaction;
 import javax.sip.SipFactory;
 import javax.sip.SipListener;
 import javax.sip.SipProvider;
@@ -19,6 +22,8 @@ import javax.sip.TransactionTerminatedEvent;
 import javax.sip.address.AddressFactory;
 import javax.sip.header.HeaderFactory;
 import javax.sip.message.MessageFactory;
+import javax.sip.message.Request;
+import javax.sip.message.Response;
 
 /**
  *
@@ -84,8 +89,21 @@ public class SipReceiver {
 
         @Override
         public void processRequest(RequestEvent re) {
-            System.out.println("Terima request ");
-            System.out.println(re.getRequest());
+            try {
+                System.out.println("Terima request ");
+                Request r = re.getRequest();
+                System.out.println(r);
+                ServerTransaction serverTransaction 
+                        = sipProvider.getNewServerTransaction(r);
+                Response ok = messageFactory.createResponse(200, r);
+                System.out.println("Response : ");
+                System.out.println(ok);
+                System.out.println("Mengirim response");
+                serverTransaction.sendResponse(ok);
+                System.out.println("Response terkirim");
+            } catch (Exception ex) {
+                Logger.getLogger(SipReceiver.class.getName()).log(Level.SEVERE, null, ex);
+            } 
         }
 
         @Override
