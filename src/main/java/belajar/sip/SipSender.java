@@ -8,7 +8,10 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.sip.ClientTransaction;
+import javax.sip.Dialog;
 import javax.sip.DialogTerminatedEvent;
 import javax.sip.IOExceptionEvent;
 import javax.sip.InvalidArgumentException;
@@ -36,6 +39,7 @@ import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
+import javax.sip.message.Response;
 
 /**
  *
@@ -55,8 +59,8 @@ public class SipSender {
     private String protocol = "udp";
     
     private String addressOfRecord = "sip:endy@localhost";
-    private String contactAddress = "sip:endy@"+ipLocal;
-    private static String registrar = "sip:endy@127.0.0.1";
+    private String contactAddress = "sip:endy@"+ipLocal+":"+portLocal;
+    private static String registrar = "sip:endy@127.0.0.1:5060";
     
     public SipSender() throws Exception {
         System.out.println("Inisialisasi SIP Factory");
@@ -162,7 +166,7 @@ public class SipSender {
     
     public static void main(String[] args) throws Exception {
         SipSender sender = new SipSender();
-        sender.kirimRegister(registrar);
+        //sender.kirimRegister(registrar);
         sender.kirimInvite(registrar);
     }
     
@@ -177,6 +181,36 @@ public class SipSender {
         public void processResponse(ResponseEvent re) {
             System.out.println("Terima response");
             System.out.println(re.getResponse());
+            
+            ClientTransaction clientTransaction = re.getClientTransaction();
+            Request original = clientTransaction.getRequest();
+            System.out.println("Response dari request "+original.getMethod());
+            
+            // hanya response invite 200 yang di-ACK, ringing tidak usah
+            if(Request.INVITE.equals(original.getMethod())  
+                    && Response.ACCEPTED == re.getResponse().getStatusCode()) {
+                try {
+                    System.out.println("Terima 200 dari INVITE, harus kirim ACK");
+                    Dialog dialog = clientTransaction.getDialog();
+                    
+                    Request ackRequest = dialog.createAck(
+                            ((CSeqHeader) re.getResponse()
+                            .getHeader(CSeqHeader.NAME)).getSeqNumber());
+  
+                    // location kita yang asli disertakan, 
+                    // supaya next request/response bisa langsung
+                    // tanpa lewat proxy
+                    ContactHeader myContactHeader = 
+                            headerFactory.createContactHeader(
+                            addressFactory.createAddress(contactAddress));
+                    ackRequest.addHeader(myContactHeader);
+                    System.out.println("Mengirim ACK");
+                    dialog.sendAck(ackRequest);
+                    System.out.println("ACK terkirim");
+                } catch (Exception ex) {
+                    Logger.getLogger(SipSender.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
             
         }
 

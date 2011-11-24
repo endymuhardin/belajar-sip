@@ -100,18 +100,23 @@ public class SipReceiver {
                 System.out.println(r.getMethod());
                 System.out.println(r);
                 
-                ServerTransaction serverTransaction 
-                        = sipProvider.getNewServerTransaction(r);
+                
                 
                 if(Request.REGISTER.equals(r.getMethod())) {
+                    ServerTransaction serverTransaction 
+                        = sipProvider.getNewServerTransaction(r);
                     Response resp = messageFactory.createResponse(200, r);
                     kirimResponse(resp, serverTransaction);
                 } else if(Request.INVITE.equals(r.getMethod())){
+                    ServerTransaction serverTransaction 
+                        = sipProvider.getNewServerTransaction(r);
                     Response ringingResponse = messageFactory.createResponse(180, r);
                     kirimResponse(ringingResponse, serverTransaction);
                     
                     Response diangkat = handleIncomingCall(serverTransaction);
                     kirimResponse(diangkat, serverTransaction);
+                } else {
+                    System.out.println("Jenis message ini belum dihandle");
                 }
                 
             } catch (Exception ex) {
