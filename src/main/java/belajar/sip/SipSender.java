@@ -59,8 +59,8 @@ public class SipSender {
         
         // konfigurasi optional, khusus untuk implementasi gov.nist
         prop.setProperty("gov.nist.javax.sip.TRACE_LEVEL", "32");
-        prop.setProperty("gov.nist.javax.sip.DEBUG_LOG", "sipreceiverdebug.txt");
-        prop.setProperty("gov.nist.javax.sip.SERVER_LOG", "sipreceiverserver.txt");
+        prop.setProperty("gov.nist.javax.sip.DEBUG_LOG", "sipsenderdebug.txt");
+        prop.setProperty("gov.nist.javax.sip.SERVER_LOG", "sipsenderserver.txt");
         
         System.out.println("Inisialisasi SIP Stack");
         sipStack = sipFactory.createSipStack(prop);
@@ -133,6 +133,11 @@ public class SipSender {
         System.out.println("Mengirim message");
         sipProvider.sendRequest(req);
         System.out.println("Message terkirim");
+    }
+    
+    public static void main(String[] args) throws Exception {
+        SipSender sender = new SipSender();
+        sender.kirimRegister();
     }
     
 }
