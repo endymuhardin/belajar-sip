@@ -129,7 +129,8 @@ public class SipSender {
         req.addHeader(contactHeader);
         
         System.out.println("Selesai membuat register request message");
-        System.out.println("Isi message : "+req);
+        System.out.println("Isi message : ");
+        System.out.println(req);
         System.out.println("Mengirim message");
         sipProvider.sendRequest(req);
         System.out.println("Message terkirim");

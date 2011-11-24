@@ -84,7 +84,8 @@ public class SipReceiver {
 
         @Override
         public void processRequest(RequestEvent re) {
-            System.out.println("Terima request "+re);
+            System.out.println("Terima request ");
+            System.out.println(re.getRequest());
         }
 
         @Override
