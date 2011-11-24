@@ -83,6 +83,7 @@ public class SipSender {
         listeningPointUdp = sipStack.createListeningPoint(ipLocal, portLocal, protocol);
         System.out.println("Inisialisasi SIP Provider");
         sipProvider = sipStack.createSipProvider(listeningPointUdp);
+        sipProvider.addSipListener(new MySipListener());
         System.out.println("SIP Provider siap : "+sipProvider);
         
         System.out.println("Inisialisasi factory lainnya");
