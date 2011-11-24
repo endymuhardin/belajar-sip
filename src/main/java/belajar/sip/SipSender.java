@@ -163,6 +163,7 @@ public class SipSender {
     public static void main(String[] args) throws Exception {
         SipSender sender = new SipSender();
         sender.kirimRegister(registrar);
+        sender.kirimInvite(registrar);
     }
     
     class MySipListener implements SipListener{

@@ -95,13 +95,21 @@ public class SipReceiver {
                 System.out.println(r.getMethod());
                 System.out.println(r);
                 
+                Response resp = null;
+                
+                if(Request.REGISTER.equals(r.getMethod())) {
+                    resp = messageFactory.createResponse(200, r);
+                } else if(Request.INVITE.equals(r.getMethod())){
+                    resp = messageFactory.createResponse(180, r);
+                }
+                
                 ServerTransaction serverTransaction 
                         = sipProvider.getNewServerTransaction(r);
-                Response ok = messageFactory.createResponse(200, r);
+                
                 System.out.println("Response : ");
-                System.out.println(ok);
+                System.out.println(resp);
                 System.out.println("Mengirim response");
-                serverTransaction.sendResponse(ok);
+                serverTransaction.sendResponse(resp);
                 System.out.println("Response terkirim");
             } catch (Exception ex) {
                 Logger.getLogger(SipReceiver.class.getName()).log(Level.SEVERE, null, ex);
