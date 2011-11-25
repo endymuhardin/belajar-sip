@@ -69,8 +69,7 @@ public class SipSender {
     private Integer portLocal = 5070;
     private String protocol = "udp";
     
-    private Integer portAudioUlaw = 12340;
-    private Integer portAudioGsm = 12342;
+    private Integer portAudio = 12340;
     
     private Integer kodeTypeUlaw = 0;
     private Integer kodeTypeGsm = 3;
@@ -157,21 +156,19 @@ public class SipSender {
             
             int jumlahPort = 1;
             
-            MediaDescription audioUlaw = sf
+            // untuk voice, encoding boleh pilih
+            MediaDescription audio = sf
                     .createMediaDescription(
-                    "audio", portAudioUlaw, jumlahPort, 
-                    "RTP/AVP", new int[]{kodeTypeUlaw});
+                    "audio", portAudio, jumlahPort, 
+                    "RTP/AVP", new int[]{kodeTypeUlaw, kodeTypeGsm});
             
-            MediaDescription audioGsm = sf
-                    .createMediaDescription(
-                    "audio", portAudioGsm, jumlahPort, 
-                    "RTP/AVP", new int[]{kodeTypeGsm});
-            
+            // capture desktop
             MediaDescription videoJpeg = sf
                     .createMediaDescription(
                     "video", portVideoJpeg, jumlahPort, 
                     "RTP/AVP", new int[]{kodeTypeJpeg});
             
+            // webcam
             MediaDescription videoH263 = sf
                     .createMediaDescription(
                     "video", portVideoH263, jumlahPort, 
@@ -181,8 +178,7 @@ public class SipSender {
             Vector<MediaDescription> daftarMedia = 
                     new Vector<MediaDescription>();
             
-            daftarMedia.add(audioGsm);
-            daftarMedia.add(audioUlaw);
+            daftarMedia.add(audio);
             daftarMedia.add(videoH263);
             daftarMedia.add(videoJpeg);
             
