@@ -28,6 +28,7 @@ import javax.sip.TimeoutEvent;
 import javax.sip.TransactionTerminatedEvent;
 import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
+import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.HeaderFactory;
 import javax.sip.header.ToHeader;
 import javax.sip.message.MessageFactory;
@@ -157,6 +158,10 @@ public class SipReceiver {
             Vector<MediaDescription> daftarMediaYangDitawarkan 
                     = sdpData.getMediaDescriptions(false);
             
+            Integer kodeTypeGsm = 3;
+            int kodeTypeH263 = 34;
+            int portAudio = 12340;
+            int portVideoH263 = 4444;
             System.out.println("Daftar media yang ditawarkan");
             for (MediaDescription mediaDescription : daftarMediaYangDitawarkan) {
                 System.out.println("Media Info : " + mediaDescription);
@@ -167,7 +172,44 @@ public class SipReceiver {
             }
             
             // create sdp answer
+            int jumlahPort = 1;
             
+            // untuk voice, pilih GSM
+            
+            MediaDescription audio = sf
+                    .createMediaDescription(
+                    "audio", portAudio, jumlahPort, 
+                    "RTP/AVP", new int[]{kodeTypeGsm});
+            
+            // capture desktop, ditolak, set port = 0
+            int portVideoJpeg = 0;
+            int kodeTypeJpeg = 26;
+            MediaDescription videoJpeg = sf
+                    .createMediaDescription(
+                    "video", portVideoJpeg, jumlahPort, 
+                    "RTP/AVP", new int[]{kodeTypeJpeg});
+            
+            // webcam
+            
+            MediaDescription videoH263 = sf
+                    .createMediaDescription(
+                    "video", portVideoH263, jumlahPort, 
+                    "RTP/AVP", new int[]{kodeTypeH263});
+            
+            
+            Vector<MediaDescription> daftarMedia = 
+                    new Vector<MediaDescription>();
+            
+            daftarMedia.add(audio);
+            daftarMedia.add(videoH263);
+            daftarMedia.add(videoJpeg);
+            
+            byte[] sdpAnswer = SdpHelper.createSdpData(sf, ipLocal, daftarMedia);
+            
+            ContentTypeHeader sdpOfferHeader = headerFactory
+                .createContentTypeHeader("application", "sdp");
+            
+            diangkat.setContent(sdpAnswer, sdpOfferHeader);
             
             // delay dulu 5 detik, pura2nya klik button
             Thread.sleep(5 * 1000);

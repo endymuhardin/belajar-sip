@@ -141,18 +141,7 @@ public class SipSender {
     private byte[] createSdpOffer(){
         
         try {
-            // inisialisasi SDP message
             SdpFactory sf = SdpFactory.getInstance();
-            Version v = sf.createVersion(0);
-            
-            long ss = SdpFactory.getNtpTime(new Date());
-            Origin origin = sf.createOrigin("-", ss, ss, "IN", "IP4", ipLocal);
-            
-            SessionName sessionName = sf.createSessionName("-");
-            Connection conn = sf.createConnection("IN", "IP4", ipLocal);
-            
-            Vector<Time> vt = new Vector<Time>();
-            vt.add(sf.createTime());
             
             int jumlahPort = 1;
             
@@ -182,14 +171,7 @@ public class SipSender {
             daftarMedia.add(videoH263);
             daftarMedia.add(videoJpeg);
             
-            SessionDescription sdp = sf.createSessionDescription();
-            sdp.setVersion(v);
-            sdp.setOrigin(origin);
-            sdp.setSessionName(sessionName);
-            sdp.setConnection(conn);
-            sdp.setTimeDescriptions(vt);
-            sdp.setMediaDescriptions(daftarMedia);
-            return sdp.toString().getBytes();
+            return SdpHelper.createSdpData(sf, ipLocal, daftarMedia);
             
         } catch (Exception ex) {
             Logger.getLogger(SipSender.class.getName()).log(Level.SEVERE, null, ex);
