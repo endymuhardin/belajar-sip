@@ -158,10 +158,7 @@ public class SipReceiver {
             Vector<MediaDescription> daftarMediaYangDitawarkan 
                     = sdpData.getMediaDescriptions(false);
             
-            Integer kodeTypeGsm = 3;
-            int kodeTypeH263 = 34;
-            int portAudio = 12340;
-            int portVideoH263 = 4444;
+            
             System.out.println("Daftar media yang ditawarkan");
             for (MediaDescription mediaDescription : daftarMediaYangDitawarkan) {
                 System.out.println("Media Info : " + mediaDescription);
@@ -174,8 +171,13 @@ public class SipReceiver {
             // create sdp answer
             int jumlahPort = 1;
             
-            // untuk voice, pilih GSM
             
+            int kodeTypeGsm = 3;
+            int kodeTypeH263 = 34;
+            int portAudio = 12340;
+            int portVideoH263 = 4444;
+            
+            // untuk voice, pilih GSM
             MediaDescription audio = sf
                     .createMediaDescription(
                     "audio", portAudio, jumlahPort, 
