@@ -267,6 +267,12 @@ public class SipSender {
                     System.out.println("Mengirim ACK");
                     dialog.sendAck(ackRequest);
                     System.out.println("ACK terkirim");
+                    
+                    System.out.println("Menampilkan SDP Answer");
+                    SdpHelper.displaySdp(SdpFactory.getInstance(), 
+                            re.getResponse().getRawContent());
+                    
+                    
                 } catch (Exception ex) {
                     Logger.getLogger(SipSender.class.getName()).log(Level.SEVERE, null, ex);
                 }

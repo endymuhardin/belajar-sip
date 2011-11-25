@@ -8,10 +8,8 @@ import java.util.Properties;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.sdp.Media;
 import javax.sdp.MediaDescription;
 import javax.sdp.SdpFactory;
-import javax.sdp.SessionDescription;
 import javax.sip.DialogTerminatedEvent;
 import javax.sip.IOExceptionEvent;
 import javax.sip.InvalidArgumentException;
@@ -153,20 +151,7 @@ public class SipReceiver {
             
             // proses sdp, baca sdp offer
             SdpFactory sf = SdpFactory.getInstance();
-            SessionDescription sdpData 
-                    = sf.createSessionDescription(new String(r.getRawContent()));
-            Vector<MediaDescription> daftarMediaYangDitawarkan 
-                    = sdpData.getMediaDescriptions(false);
-            
-            
-            System.out.println("Daftar media yang ditawarkan");
-            for (MediaDescription mediaDescription : daftarMediaYangDitawarkan) {
-                System.out.println("Media Info : " + mediaDescription);
-                Media media = mediaDescription.getMedia();
-                System.out.println("Media Type : "+media.getMediaType());
-                System.out.println("Media Encoding : "+media.getMediaFormats(false));
-                System.out.println("Media Port : "+media.getMediaPort());
-            }
+            SdpHelper.displaySdp(sf, r.getRawContent());
             
             // create sdp answer
             int jumlahPort = 1;
