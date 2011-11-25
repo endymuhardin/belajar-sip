@@ -6,10 +6,20 @@ package belajar.sip;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.sdp.Connection;
+import javax.sdp.MediaDescription;
+import javax.sdp.Origin;
+import javax.sdp.SdpFactory;
+import javax.sdp.SessionDescription;
+import javax.sdp.SessionName;
+import javax.sdp.Time;
+import javax.sdp.Version;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogTerminatedEvent;
@@ -32,6 +42,7 @@ import javax.sip.address.URI;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
+import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.HeaderFactory;
 import javax.sip.header.MaxForwardsHeader;
@@ -57,6 +68,18 @@ public class SipSender {
     private String ipLocal = "127.0.0.1";
     private Integer portLocal = 5070;
     private String protocol = "udp";
+    
+    private Integer portAudioUlaw = 12340;
+    private Integer portAudioGsm = 12342;
+    
+    private Integer kodeTypeUlaw = 0;
+    private Integer kodeTypeGsm = 3;
+    
+    private Integer portVideoH263 = 4444;
+    private Integer portVideoJpeg = 6666;
+    
+    private Integer kodeTypeH263 = 34;
+    private Integer kodeTypeJpeg = 26;
     
     private String addressOfRecord = "sip:endy@localhost";
     private String contactAddress = "sip:endy@"+ipLocal+":"+portLocal;
@@ -106,7 +129,76 @@ public class SipSender {
     public void kirimInvite(String tujuan) throws Exception {
         String command = "INVITE";
         Request req = createRequest(tujuan, command);
+        
+        byte[] sdpOfferData = createSdpOffer();
+        
+        ContentTypeHeader sdpOfferHeader = headerFactory
+                .createContentTypeHeader("application", "sdp");
+        req.setContent(sdpOfferData, sdpOfferHeader);
+        
         kirimRequest(req);
+    }
+    
+    private byte[] createSdpOffer(){
+        
+        try {
+            // inisialisasi SDP message
+            SdpFactory sf = SdpFactory.getInstance();
+            Version v = sf.createVersion(0);
+            
+            long ss = SdpFactory.getNtpTime(new Date());
+            Origin origin = sf.createOrigin("-", ss, ss, "IN", "IP4", ipLocal);
+            
+            SessionName sessionName = sf.createSessionName("-");
+            Connection conn = sf.createConnection("IN", "IP4", ipLocal);
+            
+            Vector<Time> vt = new Vector<Time>();
+            vt.add(sf.createTime());
+            
+            int jumlahPort = 1;
+            
+            MediaDescription audioUlaw = sf
+                    .createMediaDescription(
+                    "audio", portAudioUlaw, jumlahPort, 
+                    "RTP/AVP", new int[]{kodeTypeUlaw});
+            
+            MediaDescription audioGsm = sf
+                    .createMediaDescription(
+                    "audio", portAudioGsm, jumlahPort, 
+                    "RTP/AVP", new int[]{kodeTypeGsm});
+            
+            MediaDescription videoJpeg = sf
+                    .createMediaDescription(
+                    "video", portVideoJpeg, jumlahPort, 
+                    "RTP/AVP", new int[]{kodeTypeJpeg});
+            
+            MediaDescription videoH263 = sf
+                    .createMediaDescription(
+                    "video", portVideoH263, jumlahPort, 
+                    "RTP/AVP", new int[]{kodeTypeH263});
+            
+            
+            Vector<MediaDescription> daftarMedia = 
+                    new Vector<MediaDescription>();
+            
+            daftarMedia.add(audioGsm);
+            daftarMedia.add(audioUlaw);
+            daftarMedia.add(videoH263);
+            daftarMedia.add(videoJpeg);
+            
+            SessionDescription sdp = sf.createSessionDescription();
+            sdp.setVersion(v);
+            sdp.setOrigin(origin);
+            sdp.setSessionName(sessionName);
+            sdp.setConnection(conn);
+            sdp.setTimeDescriptions(vt);
+            sdp.setMediaDescriptions(daftarMedia);
+            return sdp.toString().getBytes();
+            
+        } catch (Exception ex) {
+            Logger.getLogger(SipSender.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
     }
 
     private void kirimRequest(Request req) throws SipException, TransactionUnavailableException {
