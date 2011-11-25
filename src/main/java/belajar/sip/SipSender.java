@@ -6,20 +6,13 @@ package belajar.sip;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.sdp.Connection;
 import javax.sdp.MediaDescription;
-import javax.sdp.Origin;
 import javax.sdp.SdpFactory;
-import javax.sdp.SessionDescription;
-import javax.sdp.SessionName;
-import javax.sdp.Time;
-import javax.sdp.Version;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogTerminatedEvent;
@@ -119,15 +112,12 @@ public class SipSender {
     }
     
     public void kirimRegister(String tujuan) throws Exception {
-        
-        String command = Request.REGISTER;
-        Request req = createRequest(tujuan, command);
+        Request req = createRequest(tujuan, Request.REGISTER);
         kirimRequest(req);
     }
     
     public void kirimInvite(String tujuan) throws Exception {
-        String command = Request.INVITE;
-        Request req = createRequest(tujuan, command);
+        Request req = createRequest(tujuan, Request.INVITE);
         
         byte[] sdpOfferData = createSdpOffer();
         
