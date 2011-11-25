@@ -245,10 +245,10 @@ public class SipSender {
             ClientTransaction clientTransaction = re.getClientTransaction();
             Request original = clientTransaction.getRequest();
             System.out.println("Response dari request "+original.getMethod());
-            
+            System.out.println("Status Code "+re.getResponse().getStatusCode());
             // hanya response invite 200 yang di-ACK, ringing tidak usah
             if(Request.INVITE.equals(original.getMethod())  
-                    && Response.ACCEPTED == re.getResponse().getStatusCode()) {
+                    && Response.OK == re.getResponse().getStatusCode()) {
                 try {
                     System.out.println("Terima 200 dari INVITE, harus kirim ACK");
                     Dialog dialog = clientTransaction.getDialog();
