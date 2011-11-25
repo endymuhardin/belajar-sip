@@ -120,13 +120,13 @@ public class SipSender {
     
     public void kirimRegister(String tujuan) throws Exception {
         
-        String command = "REGISTER";
+        String command = Request.REGISTER;
         Request req = createRequest(tujuan, command);
         kirimRequest(req);
     }
     
     public void kirimInvite(String tujuan) throws Exception {
-        String command = "INVITE";
+        String command = Request.INVITE;
         Request req = createRequest(tujuan, command);
         
         byte[] sdpOfferData = createSdpOffer();
